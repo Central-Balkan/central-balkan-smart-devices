@@ -16,28 +16,27 @@ WiFiServer server(80);
 // Variable to store the HTTP request
 String header;
 
-// Auxiliar variables to store the current output state
-//this pins for esp32
-//change the pins for esp8266
 String output12State = "off";
 time_t now = time(nullptr);
 
-// Regime
 String regime = "0";
-
-// Assign output variables to GPIO pins
 const int output12 = 12;
 
 void setup() {
+  // This method does the following:
+  // - set the baud rate
+  // - set pin 12 (D6) mode to OUTPUT
+  // - Inialize wifi network
+  // - Notify the networks status via serial port
   Serial.begin(115200);
   Serial.print("Startging access point: ");
-  // Initialize the output variables as outputs
+
   pinMode(output12, OUTPUT);
 
-  // Connect to Wi-Fi network with SSID and password
   Serial.print("Setting AP (Access Point)…");
-  // Remove the password parameter, if you want the AP (Access Point) to be open
-  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
+  Serial.println(
+      WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!"
+  );
 
   WiFi.softAP(ssid, password);
 
@@ -50,6 +49,7 @@ void setup() {
 
 void loop(){
     time_t currentTime = time(nullptr);
+
     if (regime == "1") {
         bool shouldTrigger  = (currentTime - now > 10);
         if (shouldTrigger) {
