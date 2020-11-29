@@ -43,6 +43,12 @@ void handleSetConfig() {
         restTime = restValue.toInt() * 1000;
         server.send(200, "text/plain", "Set config successfully");
     } else {
+        Serial.println("Bad config: ");
+        Serial.println("Work: ");
+        Serial.println(workValue);
+        Serial.println("Rest: ");
+        Serial.println(restValue);
+
         server.send(400, "text/plain", "Bad config");
     }
 
