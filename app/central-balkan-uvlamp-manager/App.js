@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button, Image } from 'react-native';
+import { StyleSheet, Text, View, Button, Image, ActivityIndicator } from 'react-native';
 
 const setConfig = (work, rest) => {
     console.log(work, rest)
@@ -18,78 +18,112 @@ const setConfig = (work, rest) => {
 const bulbSize = 150;
 const buttonColor = '#3f5ea2';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Централен Балкан ЕООД</Text>
-      <Text style={styles.title}>Бактерицидна UV лампа</Text>
-      <Image style={{background: '#fff', width: bulbSize, height: bulbSize, marginTop: 20}}source={require('./assets/bulb-on.svg')}/>
-      <Text style={{color: '#fff'}}>Включена</Text>
-      <Image style={{background: '#fff', width: bulbSize, height: bulbSize, marginTop: 20}}source={require('./assets/bulb-off.svg')}/>
-      <Text style={{color: '#fff'}}>Изключена</Text>
+export default class App extends React.Component {
+    state = {
+        isInitiallyLoading: true,
+        isOn: true
+    }
+    componentDidMount() {
+        setTimeout(()=> this.setState({isInitiallyLoading: false}), 1000)
+    }
 
-      <Text style={styles.subTitle}>Режими на работа</Text>
+    currentState = () => {
+        if (this.state.isOn)
+            return (
+                <View>
+                  <Image style={{background: '#fff', width: bulbSize, height: bulbSize, marginTop: 20}}source={require('./assets/bulb-on.svg')}/>
+                  <Text style={{color: '#fff', textAlign: 'center'}}>Включена</Text>
+              </View>
+            )
+        else
+            return (
+                <View>
+                  <Image style={{background: '#fff', width: bulbSize, height: bulbSize, marginTop: 20}}source={require('./assets/bulb-off.svg')}/>
+                  <Text style={{color: '#fff', textAlign: 'center'}}>Изключена</Text>
+              </View>
+            )
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='5 минути работа на 2 часа'
-              color={buttonColor}
-              onPress={() => setConfig(5 * 60, 2 * 60 * 60)}
-          />
-      </View>
+    }
+    render() {
+        if (this.state.isInitiallyLoading) {
+            return (
+                <View style={styles.container}>
+                  <Text style={styles.title}>Централен Балкан ЕООД</Text>
+                  <Text style={styles.title}>Бактерицидна UV лампа</Text>
+                  <ActivityIndicator size="large" />
+                </View>
+            )
+        }
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='3 минути работа на 2 часа'
-              color={buttonColor}
-              onPress={() => setConfig(3 * 60, 2 * 60 * 60)}
-          />
-      </View>
+      return (
+        <View style={styles.container}>
+          <Text style={styles.title}>Централен Балкан ЕООД</Text>
+          <Text style={styles.title}>Бактерицидна UV лампа</Text>
+          {this.currentState()}
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='10 минути работа на 4 часа'
-              color={buttonColor}
-              onPress={() => setConfig(10 * 60, 4 * 60 * 60)}
-          />
-      </View>
+          <Text style={styles.subTitle}>Режими на работа</Text>
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='6 минути работа на 4 часа'
-              color={buttonColor}
-              onPress={() => setConfig(6 * 60, 4 * 60 * 60)}
-          />
-      </View>
+          <View style={styles.buttonBox}>
+              <Button
+                  title='5 минути работа на 2 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(5 * 60, 2 * 60 * 60)}
+              />
+          </View>
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='15 минути работа на 6 часа'
-              color={buttonColor}
-              onPress={() => setConfig(15 * 60, 6 * 60 * 60)}
-          />
-      </View>
+          <View style={styles.buttonBox}>
+              <Button
+                  title='3 минути работа на 2 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(3 * 60, 2 * 60 * 60)}
+              />
+          </View>
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='9 минути работа на 6 часа'
-              color={buttonColor}
-              onPress={() => setConfig(9 * 60, 6 * 60 * 60)}
-          />
-      </View>
+          <View style={styles.buttonBox}>
+              <Button
+                  title='10 минути работа на 4 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(10 * 60, 4 * 60 * 60)}
+              />
+          </View>
 
-      <View style={styles.buttonBox}>
-          <Button
-              title='30 секунди работа / 30 секунди почивка (тест)'
-              color={buttonColor}
-              onPress={() => setConfig(30, 30)}
-          />
+          <View style={styles.buttonBox}>
+              <Button
+                  title='6 минути работа на 4 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(6 * 60, 4 * 60 * 60)}
+              />
+          </View>
 
-      </View>
+          <View style={styles.buttonBox}>
+              <Button
+                  title='15 минути работа на 6 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(15 * 60, 6 * 60 * 60)}
+              />
+          </View>
 
-      <StatusBar style="auto" />
-    </View>
-  );
+          <View style={styles.buttonBox}>
+              <Button
+                  title='9 минути работа на 6 часа'
+                  color={buttonColor}
+                  onPress={() => setConfig(9 * 60, 6 * 60 * 60)}
+              />
+          </View>
+
+          <View style={styles.buttonBox}>
+              <Button
+                  title='30 секунди работа / 30 секунди почивка (тест)'
+                  color={buttonColor}
+                  onPress={() => setConfig(30, 30)}
+              />
+
+          </View>
+
+          <StatusBar style="auto" />
+        </View>
+      );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -101,7 +135,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: '24px',
     marginTop: 10,
-      padding: 10,
+    padding: 10,
   },
   subTitle: {
     color: '#ffffff',
