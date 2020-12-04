@@ -56,11 +56,23 @@ void handleSetConfig() {
 
 void handleGetConfig() {
     Serial.println("HTTP: Getting config");
-    server.send(
-        200,
-        "text/plain",
-        "{ \"work\": " + (String)workTime + ", \"rest\": " + (String)restTime + "}"
-    );
+    int isCurrentlyWorkingInt;
+    int timeLeft;
+
+    unsigned long currentTime = millis();
+    unsigned int currentWorkingTime = (currentTime - lastChangeMadeAt);
+
+    if (isCurrentlyWorking) {
+        isCurrentlyWorkingInt = 1;
+        timeLeft = workTime - currentWorkingTime;
+    } else {
+        isCurrentlyWorkingInt = 0;
+        timeLeft = restTime - currentWorkingTime;
+    }
+
+    const String result = (String)workTime + "/" + (String)restTime + "/" + (String)isCurrentlyWorkingInt + "/" + (String)timeLeft;
+
+    server.send(200, "text/plain", result);
 }
 
 void handleNotFound() {
