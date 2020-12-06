@@ -15,7 +15,6 @@ import * as axios from 'axios';
 
 const DEBUG = false;
 const domain = DEBUG ? 'http://localhost:8000' : 'http://192.168.4.1';
-// const domain = 'http://0.0.0.0:8000';
 
 const setConfig = (work, rest) => {
   console.log(work, rest);
