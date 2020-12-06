@@ -33,14 +33,11 @@ const setConfig = (work, rest) => {
 const bulbSize = 150;
 const buttonColor = "#3f5ea2";
 
-async function fetchWithTimeout(resource, options) {
-  const { timeout = 5000 } = options;
-
+async function fetchWithTimeout(resource) {
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+  const id = setTimeout(() => controller.abort(), 3000);
 
   const response = await fetch(resource, {
-    ...options,
     signal: controller.signal,
   });
   clearTimeout(id);
@@ -51,10 +48,10 @@ async function fetchWithTimeout(resource, options) {
 
 export default class App extends React.Component {
   state = {
-    isOnline: true,
+    isOnline: false,
     workTime: null,
     restTime: null,
-    isOn: true,
+    isOn: false,
     timeLeft: 0,
 
     isInitiallyLoading: true,
@@ -69,8 +66,7 @@ export default class App extends React.Component {
     }).start();
   };
 
-  connect = () => {
-  return fetch(`${domain}/config/get/`)
+  connect = () => fetchWithTimeout(`${domain}/config/get/`)
     .then((response) => response.json())
     .then((json) => {
         console.log('asd')
@@ -82,11 +78,10 @@ export default class App extends React.Component {
               restTime: json.restTime,
               timeLeft: json.timeLeft,
             });
-    })
-  }
+    }).catch(er => this.setState({isOnline: false, isOn: false}))
 
   componentDidMount() {
-    setTimeout(() => this.setState({ isInitiallyLoading: false }), 1000);
+    setTimeout(() => this.setState({ isInitiallyLoading: false }), 3500);
     this.heartbeatAnimation();
     setInterval(() => this.connect(), 3000);
   }
@@ -100,7 +95,7 @@ export default class App extends React.Component {
   }
   timeLeftVerbose =  () => {
       if (!this.state.timeLeft) {
-          return 'N/A'
+          return ''
       }
 
       if (this.state.isOn) {
@@ -113,8 +108,8 @@ export default class App extends React.Component {
   currentProgram = () => {
       return (
           <View style={{color: 'white'}}>
-              <Text style={{color: 'white'}}>Време работа: {this.state.workTime ? this.verboseName(this.state.workTime) : 'N/A'}</Text>
-              <Text style={{color: 'white'}}>Време почивка: {this.state.restTime ? this.verboseName(this.state.restTime) : 'N/A'}</Text>
+              <Text style={{color: 'white', marginTop: 10}}>Време работа: {this.state.workTime ? this.verboseName(this.state.workTime) : 'N/A'}</Text>
+              <Text style={{color: 'white', marginTop: 10}}>Време почивка: {this.state.restTime ? this.verboseName(this.state.restTime) : 'N/A'}</Text>
               <Text style={{color: 'white'}}>{this.timeLeftVerbose()}</Text>
           </View>
       )
@@ -133,7 +128,7 @@ export default class App extends React.Component {
             }}
             source={require("./assets/workingLamp.jpg")}
           />
-          <Text style={{ color: "#fff", textAlign: "center" }}>Включена</Text>
+          <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>Включена</Text>
         </View>
       );
     else
@@ -148,10 +143,21 @@ export default class App extends React.Component {
             }}
             source={require("./assets/bulb-off.svg")}
           />
-          <Text style={{ color: "#fff", textAlign: "center" }}>Изключена</Text>
+          <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>Изключена</Text>
         </View>
       );
   };
+
+    errorMessage = () => (
+        <View style={{background: '#ff3333', width: '80vw', padding: 10, marginTop: 10}}>
+            <Text style={{fontSize: '20px', color: 'white', textAlign: 'center'}}>Грешка: Нямате WIFI връзка с бактерицидната лампа!!</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>1. Проверете захранването на бактерицидната лампа</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>2. Проверете режима на бактерицидната лампа</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>3. Свърженете мобилното си устройство към WIFI с име "UVLampCentralBalkan"</Text>
+        
+        </View>
+    )
+
   render() {
     if (this.state.isInitiallyLoading) {
       return (
@@ -184,6 +190,7 @@ export default class App extends React.Component {
         </View>
         {this.currentState()}
         {this.currentProgram()}
+        {this.state.isOnline ? '' : this.errorMessage()}
 
         <Text style={styles.subTitle}>Режими на работа</Text>
 
