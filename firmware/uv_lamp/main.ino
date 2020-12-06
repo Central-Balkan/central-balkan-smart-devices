@@ -18,10 +18,13 @@ String header;
 // State
 unsigned long lastChangeMadeAt = millis();
 const int output12 = 12;
+const int LED = 16;
 unsigned int workTime = 5000; // 5 seconds by default
 unsigned int restTime = 5000; // 5 seconds by default
 bool isCurrentlyWorking = true;  // Start working by default
 
+bool isLedOn = false;
+unsigned long ledOnUntil; // Shows the end time of the LED indication (when getting config)
 
 void handleRoot() {
     Serial.println("HTTP: / request");
@@ -52,6 +55,21 @@ void handleSetConfig() {
         server.send(400, "text/plain", "Bad config");
     }
 
+    if (!isLedOn) {
+        // blink twice to indicate it's setting conifguration
+        digitalWrite(LED, HIGH);
+        delay(100);
+        digitalWrite(LED, LOW);
+        delay(100);
+        digitalWrite(LED, HIGH);
+        delay(100);
+        digitalWrite(LED, LOW);
+    }
+
+}
+
+String getConfig(int isCurrentlyWorkingInt, int timeLeft) {
+    return "{ \"workTime\": \"" + (String)workTime + "\", \"restTime\": \"" + (String)restTime + "\", \"isCurrentlyWorkingInt\": \"" + (String)isCurrentlyWorkingInt + "\", \"timeLeft\": \"" + (String)timeLeft + "\"}";
 }
 
 void handleGetConfig() {
@@ -70,9 +88,13 @@ void handleGetConfig() {
         timeLeft = restTime - currentWorkingTime;
     }
 
-    const String result = (String)workTime + "/" + (String)restTime + "/" + (String)isCurrentlyWorkingInt + "/" + (String)timeLeft;
+    server.send(200, "text/plain", getConfig(isCurrentlyWorkingInt, timeLeft));
 
-    server.send(200, "text/plain", result);
+    if (!isLedOn) {
+        digitalWrite(LED, HIGH);
+        ledOnUntil = millis() + 500;
+        isLedOn = true;
+    }
 }
 
 void handleNotFound() {
@@ -91,6 +113,9 @@ void setup() {
 
   pinMode(output12, OUTPUT);
   digitalWrite(output12, HIGH);
+
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
 
   Serial.print("Setting AP (Access Point)…");
   Serial.println(
@@ -148,6 +173,12 @@ void manageUVLamp() {
     } else {
         // Determine if it should start working
         if (currentWorkingTime > restTime) UvLampTurnOn();
+    }
+
+    // Check led
+    if (isLedOn && currentTime > ledOnUntil) {
+        digitalWrite(LED, LOW);
+        isLedOn = false;
     }
 }
 
