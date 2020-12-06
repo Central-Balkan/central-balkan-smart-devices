@@ -13,8 +13,8 @@ import * as axios from 'axios';
 
 
 
-// const domain = 'http://192.168.4.1';
-const domain = 'http://localhost:8000';
+const DEBUG = false;
+const domain = DEBUG ? 'http://localhost:8000' : 'http://192.168.4.1';
 // const domain = 'http://0.0.0.0:8000';
 
 const setConfig = (work, rest) => {
@@ -91,7 +91,7 @@ export default class App extends React.Component {
       if (seconds < 60)
           return `${seconds} секунди`
 
-      return `${(seconds - seconds % 60) / 60} минути и ${seconds % 60} секунди`
+      return `${(seconds - seconds % 60) / 60} минути и ${Math.round(seconds % 60, 2)} секунди`
   }
   timeLeftVerbose =  () => {
       if (!this.state.timeLeft) {

@@ -44,6 +44,7 @@ void handleSetConfig() {
         Serial.println(restValue);
         workTime = workValue.toInt() * 1000;
         restTime = restValue.toInt() * 1000;
+        server.sendHeader("Access-Control-Allow-Origin", "*");
         server.send(200, "text/plain", "Set config successfully");
     } else {
         Serial.println("Bad config: ");
@@ -88,6 +89,7 @@ void handleGetConfig() {
         timeLeft = restTime - currentWorkingTime;
     }
 
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", getConfig(isCurrentlyWorkingInt, timeLeft));
 
     if (!isLedOn) {
