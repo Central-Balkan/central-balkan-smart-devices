@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 
 app = FastAPI()
 
@@ -30,3 +31,8 @@ async def read_item():
         "isCurrentlyWorkingInt": "0",
         "timeLeft": "3576"
     }
+
+
+@app.post("/config/set/")
+async def read_item():
+    return PlainTextResponse("Set config successfully")
