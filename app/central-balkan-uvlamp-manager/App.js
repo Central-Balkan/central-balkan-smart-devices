@@ -9,12 +9,53 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import * as axios from 'axios';
 
 
-
-const DEBUG = false;
+const DEBUG = true;
 const domain = DEBUG ? 'http://localhost:8000' : 'http://192.168.4.1';
+const LOADING_TIME =  DEBUG ? 100 : 3500;
+
+const minutes = seconds => seconds * 60;
+const hours = seconds => seconds * 60 * 60;
+
+const REGIMES = [
+    {
+        title: '5 минути работа на 30 минути',
+        workSeconds: minutes(5),
+        restSeconds: minutes(30),
+    },
+    {
+        title: '3 минути работа на 30 минути',
+        workSeconds: minutes(3),
+        restSeconds: minutes(30),
+    },
+    {
+        title: '5 минути работа на 1 час',
+        workSeconds: minutes(5),
+        restSeconds: hours(1),
+    },
+    {
+        title: '3 минути работа на 1 час',
+        workSeconds: minutes(3),
+        restSeconds: hours(1),
+    },
+    {
+        title: '10 минути работа на 2 часа',
+        workSeconds: minutes(10),
+        restSeconds: hours(2),
+    },
+    {
+        title: '6 минути работа на 2 часа',
+        workSeconds: minutes(10),
+        restSeconds: hours(2),
+    },
+    {
+        title: 'Тестов режим (20 секунди работа, 20 секунди почивка)',
+        workSeconds: minutes(10),
+        restSeconds: hours(2),
+    },
+];
+
 
 const setConfig = (work, rest) => {
   console.log(work, rest);
@@ -80,7 +121,7 @@ export default class App extends React.Component {
     }).catch(er => this.setState({isOnline: false, isOn: false}))
 
   componentDidMount() {
-    setTimeout(() => this.setState({ isInitiallyLoading: false }), 3500);
+    setTimeout(() => this.setState({ isInitiallyLoading: false }), LOADING_TIME);
     this.heartbeatAnimation();
     setInterval(() => this.connect(), 3000);
   }
@@ -157,6 +198,16 @@ export default class App extends React.Component {
         </View>
     )
 
+    getButton = (title, workSeconds, restSeconds) => (
+        <View style={styles.buttonBox}>
+            <Button
+                title={title}
+                color={buttonColor}
+                onPress={() => setConfig(workSeconds, restSeconds)}
+            />
+        </View>
+    )
+
   render() {
     if (this.state.isInitiallyLoading) {
       return (
@@ -193,68 +244,7 @@ export default class App extends React.Component {
 
         <Text style={styles.subTitle}>Режими на работа</Text>
 
-        <View style={styles.buttonBox}>
-          <Button
-              title="
-              Търговска зала - интезивен 
-              (5 минути работа, 2 часа почивка)
-              "
-            color={buttonColor}
-            onPress={() => setConfig(5 * 60, 2 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-              title="
-              Офис - интезивен 
-              (3 минути работа, 2 часа почивка)
-              "
-            color={buttonColor}
-            onPress={() => setConfig(3 * 60, 2 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-            title="10 минути работа на 4 часа"
-            color={buttonColor}
-            onPress={() => setConfig(10 * 60, 4 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-            title="6 минути работа на 4 часа"
-            color={buttonColor}
-            onPress={() => setConfig(6 * 60, 4 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-            title="15 минути работа на 6 часа"
-            color={buttonColor}
-            onPress={() => setConfig(15 * 60, 6 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-            title="9 минути работа на 6 часа"
-            color={buttonColor}
-            onPress={() => setConfig(9 * 60, 6 * 60 * 60)}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <Button
-            title="30 секунди работа / 30 секунди почивка (тест)"
-            color={buttonColor}
-            onPress={() => setConfig(30, 30)}
-          />
-        </View>
-
+        {REGIMES.map(({title, workSeconds, restSeconds}) => this.getButton(title, workSeconds, restSeconds))}
         <StatusBar style="auto" />
       </View>
     );
