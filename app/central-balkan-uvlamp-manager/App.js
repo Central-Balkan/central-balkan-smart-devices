@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 
-const DEBUG = true;
+const DEBUG = false;
 const domain = DEBUG ? 'http://localhost:8000' : 'http://192.168.4.1';
 const LOADING_TIME =  DEBUG ? 100 : 3500;
 
