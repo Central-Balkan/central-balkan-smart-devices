@@ -18,6 +18,9 @@ const LOADING_TIME =  DEBUG ? 100 : 3500;
 const minutes = seconds => seconds * 60;
 const hours = seconds => seconds * 60 * 60;
 
+const bulbSize = 150;
+const buttonColor = "#3f5ea2";
+
 const REGIMES = [
     {
         title: '5 минути работа на 30 минути',
@@ -57,23 +60,21 @@ const REGIMES = [
 ];
 
 
-const setConfig = (work, rest) => {
-  console.log(work, rest);
-  console.log(JSON.stringify({ work, rest }));
-  fetch(`${domain}/config/set/`, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `work=${work}&rest=${rest}`,
+async function postWithTimeout(resource, options, callback) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 3000);
+
+  const response = await fetch(resource, {
+    signal: controller.signal,
+    ...options
   });
-};
+  clearTimeout(id);
 
-const bulbSize = 150;
-const buttonColor = "#3f5ea2";
+ callback();
+ return response;
+}
 
-async function fetchWithTimeout(resource) {
+async function getWithTimeout(resource) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), 3000);
 
@@ -88,15 +89,19 @@ async function fetchWithTimeout(resource) {
 
 export default class App extends React.Component {
   state = {
-    isOnline: false,
+    // lamp configuration
     workTime: null,
     restTime: null,
     isOn: false,
     timeLeft: 0,
 
+    // app configuration
+    isOnline: false,
     isInitiallyLoading: true,
     statusBosAnimatedOpacity: new Animated.Value(1),
+    isCurrentlySettingConfiguration: false
   };
+
 
   heartbeatAnimation = () => {
     // Will change fadeAnim value to 1 in 5 seconds
@@ -106,7 +111,7 @@ export default class App extends React.Component {
     }).start();
   };
 
-  connect = () => fetchWithTimeout(`${domain}/config/get/`)
+  heartbeat = () => getWithTimeout(`${domain}/config/get/`)
     .then((response) => response.json())
     .then((json) => {
         console.log('asd')
@@ -120,10 +125,22 @@ export default class App extends React.Component {
             });
     }).catch(er => this.setState({isOnline: false, isOn: false}))
 
+    setConfig = (work, rest) => {
+        this.setState({isCurrentlySettingConfiguration: true});
+        postWithTimeout(`${domain}/config/set/`, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `work=${work}&rest=${rest}`,
+          }, () => this.setState({isCurrentlySettingConfiguration: false}));
+    }
+
   componentDidMount() {
     setTimeout(() => this.setState({ isInitiallyLoading: false }), LOADING_TIME);
     this.heartbeatAnimation();
-    setInterval(() => this.connect(), 3000);
+    setInterval(() => this.heartbeat(), 3000);
   }
 
   verboseName = miliseconds => {
@@ -133,6 +150,7 @@ export default class App extends React.Component {
 
       return `${(seconds - seconds % 60) / 60} минути и ${Math.round(seconds % 60, 2)} секунди`
   }
+
   timeLeftVerbose =  () => {
       if (!this.state.timeLeft) {
           return ''
@@ -155,6 +173,7 @@ export default class App extends React.Component {
       )
 
   }
+
   currentState = () => {
     if (this.state.isOn)
       return (
@@ -203,7 +222,7 @@ export default class App extends React.Component {
             <Button
                 title={title}
                 color={buttonColor}
-                onPress={() => setConfig(workSeconds, restSeconds)}
+                onPress={() => this.setConfig(workSeconds, restSeconds)}
             />
         </View>
     )
@@ -241,6 +260,13 @@ export default class App extends React.Component {
         {this.currentState()}
         {this.currentProgram()}
         {this.state.isOnline ? '' : this.errorMessage()}
+        {this.state.isCurrentlySettingConfiguration ?
+            (
+                <View>
+                    <ActivityIndicator size="large" />
+                </View>
+            ) : <View/>
+        }
 
         <Text style={styles.subTitle}>Режими на работа</Text>
 
