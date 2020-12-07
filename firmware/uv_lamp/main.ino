@@ -19,8 +19,8 @@ String header;
 unsigned long lastChangeMadeAt = millis();
 const int output12 = 12;
 const int LED = 16;
-unsigned int workTime = 5000; // 5 seconds by default
-unsigned int restTime = 5000; // 5 seconds by default
+unsigned int workTime = 30000; // 5 seconds by default
+unsigned int restTime = 30000; // 5 seconds by default
 bool isCurrentlyWorking = true;  // Start working by default
 
 bool isLedOn = false;
