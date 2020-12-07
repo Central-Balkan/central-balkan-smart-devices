@@ -46,7 +46,7 @@ const REGIMES = [
     },
     {
         title: '6 минути работа на 2 часа',
-        workSeconds: minutes(10),
+        workSeconds: minutes(6),
         restSeconds: hours(2),
     },
     {
