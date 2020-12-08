@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
   Button,
   Image,
   ActivityIndicator,
@@ -108,6 +109,7 @@ export default class App extends React.Component {
     Animated.timing(this.state.statusBosAnimatedOpacity, {
       toValue: 0.2,
       duration: 2000,
+        useNativeDriver: true
     }).start();
   };
 
@@ -208,17 +210,17 @@ export default class App extends React.Component {
   };
 
     errorMessage = () => (
-        <View style={{background: '#ff3333', width: '80vw', padding: 10, marginTop: 10}}>
-            <Text style={{fontSize: '20px', color: 'white', textAlign: 'center'}}>Грешка: Нямате WIFI връзка с бактерицидната лампа!!</Text>
-            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>1. Проверете захранването на бактерицидната лампа</Text>
-            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>2. Проверете режима на бактерицидната лампа</Text>
-            <Text style={{color: 'white', textAlign: 'left', fontSize: '15px', marginTop: '10px'}}>3. Свърженете мобилното си устройство към WIFI с име "UVLampCentralBalkan"</Text>
+        <View style={{backgroundColor: '#ff3333', width: 250, padding: 10, marginTop: 10}}>
+            <Text style={{fontSize: 20, color: 'white', textAlign: 'center'}}>Грешка: Нямате WIFI връзка с бактерицидната лампа!!</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: 15, marginTop: 10}}>1. Проверете захранването на бактерицидната лампа</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: 15, marginTop: 10}}>2. Проверете режима на бактерицидната лампа</Text>
+            <Text style={{color: 'white', textAlign: 'left', fontSize: 15, marginTop: 10}}>3. Свърженете мобилното си устройство към WIFI с име "UVLampCentralBalkan"</Text>
         
         </View>
     )
 
-    getButton = (title, workSeconds, restSeconds) => (
-        <View style={styles.buttonBox}>
+    getButton = (title, workSeconds, restSeconds, i) => (
+        <View key={i} style={styles.buttonBox}>
             <Button
                 title={title}
                 color={buttonColor}
@@ -239,7 +241,7 @@ export default class App extends React.Component {
     }
 
     return (
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Централен Балкан ЕООД</Text>
         <Text style={styles.title}>Бактерицидна UV лампа</Text>
         <View>
@@ -252,14 +254,14 @@ export default class App extends React.Component {
               opacity: this.state.statusBosAnimatedOpacity,
               width: 20,
               height: 20,
-              borderRadius: "50%",
-              border: "1px solid white",
+              borderRadius: 50,
             }}
           ></Animated.View>
         </View>
         {this.currentState()}
         {this.currentProgram()}
         {this.state.isOnline ? '' : this.errorMessage()}
+
         {this.state.isCurrentlySettingConfiguration ?
             (
                 <View>
@@ -270,9 +272,9 @@ export default class App extends React.Component {
 
         <Text style={styles.subTitle}>Режими на работа</Text>
 
-        {REGIMES.map(({title, workSeconds, restSeconds}) => this.getButton(title, workSeconds, restSeconds))}
+        {REGIMES.map(({title, workSeconds, restSeconds}, i) => this.getButton(title, workSeconds, restSeconds, i))}
         <StatusBar style="auto" />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -280,23 +282,23 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   buttonBox: {
     marginTop: 10,
-    width: "90vw",
+    width: 250,
   },
   title: {
     color: "#ffffff",
-    fontSize: "24px",
+    fontSize: 24,
     marginTop: 10,
     padding: 10,
   },
   subTitle: {
     color: "#ffffff",
-    fontSize: "20px",
+    fontSize: 20,
     marginTop: 30,
   },
   container: {
-    flex: 1,
     backgroundColor: "#0f243e",
     alignItems: "center",
+    minHeight: 1000
   },
   statusBoxLabel: {
     color: "white",
