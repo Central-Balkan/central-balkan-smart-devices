@@ -55,8 +55,8 @@ const REGIMES = [
     },
     {
         title: 'Тестов режим (20 секунди работа, 20 секунди почивка)',
-        workSeconds: minutes(10),
-        restSeconds: hours(2),
+        workSeconds: 20,
+        restSeconds: 2,
     },
 ];
 
@@ -116,8 +116,6 @@ export default class App extends React.Component {
   heartbeat = () => getWithTimeout(`${domain}/config/get/`)
     .then((response) => response.json())
     .then((json) => {
-        console.log('asd')
-        console.log(json)
             this.setState({
               isOnline: true,
               isOn: true,
@@ -243,7 +241,7 @@ export default class App extends React.Component {
         </View>
         {this.currentState()}
         {this.currentProgram()}
-        {this.state.isOnline ? '' : this.errorMessage()}
+        {this.state.isOnline ? <View/> : this.errorMessage()}
 
         {this.state.isCurrentlySettingConfiguration ?
             (
