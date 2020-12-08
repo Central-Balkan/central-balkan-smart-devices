@@ -1,5 +1,5 @@
 #include <ESP8266WebServer.h>
-
+#include <FS.h>   //Include File System Headers
 
 IPAddress local_IP(192,168,4,1);
 IPAddress gateway(192,168,4,9);
@@ -31,6 +31,16 @@ void handleRoot() {
     server.send(200, "text/plain", "Central Balkan LTD");
 }
 
+void writeConfiguration() {
+    File f = SPIFFS.open("/config.txt", "w");
+    if (!f) {
+        Serial.println("Error writing configuration to persistent storage");
+    }
+    f.println((String)workTime);
+    f.println((String)restTime);
+    f.close();
+}
+
 void handleSetConfig() {
     Serial.println("HTTP: Setting config");
 
@@ -46,6 +56,9 @@ void handleSetConfig() {
         restTime = restValue.toInt() * 1000;
         server.sendHeader("Access-Control-Allow-Origin", "*");
         server.send(200, "text/plain", "Set config successfully");
+
+        // Update persistent state
+        writeConfiguration();
 
         // Turn the lamp on at each config update and reset the timer.
         UvLampTurnOn();
@@ -107,6 +120,25 @@ void handleNotFound() {
     server.send(404, "text/plain", "404: Not found");
 }
 
+void readConfiguration() {
+   File f = SPIFFS.open("/config.txt", "r");
+
+  if (!f) {
+    Serial.println("File doesn't exist yet. Creating it");
+    File f = SPIFFS.open("/config.txt", "w");
+    if (!f) {
+      Serial.println("file creation failed");
+    }
+
+    f.println((String)workTime);
+    f.println((String)restTime);
+  } else {
+    int workTime = f.readStringUntil('\n').toInt();
+    int restTime = f.readStringUntil('\n').toInt();
+  }
+  f.close();
+}
+
 void setup() {
   // This method does the following:
   // - set the baud rate
@@ -139,6 +171,10 @@ void setup() {
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP server started");
+
+  // Take care of persistent storage
+  SPIFFS.begin();
+  readConfiguration();
 }
 
 void UvLampTurnOff() {
