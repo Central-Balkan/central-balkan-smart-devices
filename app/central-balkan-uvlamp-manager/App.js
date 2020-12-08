@@ -180,31 +180,13 @@ export default class App extends React.Component {
     if (this.state.isOn)
       return (
         <View>
-          <Image
-            style={{
-              background: "#fff",
-              width: bulbSize,
-              height: bulbSize,
-              marginTop: 20,
-            }}
-            source={require("./assets/workingLamp.jpg")}
-          />
-          <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>Включена</Text>
+          <Text style={{ fontSize: 20, color: "#fff", textAlign: "center", marginTop: 10 }}>Включена</Text>
         </View>
       );
     else
       return (
         <View>
-          <Image
-            style={{
-              background: "#fff",
-              width: bulbSize,
-              height: bulbSize,
-              marginTop: 20,
-            }}
-            source={require("./assets/bulb-off.svg")}
-          />
-          <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>Изключена</Text>
+          <Text style={{ fontSize: 20, color: "#fff", textAlign: "center", marginTop: 10 }}>Изключена</Text>
         </View>
       );
   };
@@ -222,6 +204,7 @@ export default class App extends React.Component {
     getButton = (title, workSeconds, restSeconds, i) => (
         <View key={i} style={styles.buttonBox}>
             <Button
+                disabled={!this.state.isOnline}
                 title={title}
                 color={buttonColor}
                 onPress={() => this.setConfig(workSeconds, restSeconds)}
@@ -235,7 +218,7 @@ export default class App extends React.Component {
         <View style={styles.container}>
           <Text style={styles.title}>Централен Балкан ЕООД</Text>
           <Text style={styles.title}>Бактерицидна UV лампа</Text>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color='#999999' />
         </View>
       );
     }
@@ -265,7 +248,7 @@ export default class App extends React.Component {
         {this.state.isCurrentlySettingConfiguration ?
             (
                 <View>
-                    <ActivityIndicator size="large" />
+                    <ActivityIndicator size="large" color='#999999' />
                 </View>
             ) : <View/>
         }
