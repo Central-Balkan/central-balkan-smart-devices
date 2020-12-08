@@ -56,7 +56,7 @@ const REGIMES = [
     {
         title: 'Тестов режим (20 секунди работа, 20 секунди почивка)',
         workSeconds: 20,
-        restSeconds: 2,
+        restSeconds: 20,
     },
 ];
 
