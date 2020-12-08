@@ -46,6 +46,9 @@ void handleSetConfig() {
         restTime = restValue.toInt() * 1000;
         server.sendHeader("Access-Control-Allow-Origin", "*");
         server.send(200, "text/plain", "Set config successfully");
+
+        // Turn the lamp on at each config update and reset the timer.
+        UvLampTurnOn();
     } else {
         Serial.println("Bad config: ");
         Serial.println("Work: ");
