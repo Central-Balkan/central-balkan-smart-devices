@@ -135,6 +135,9 @@ void readConfiguration() {
   } else {
     int workTime = f.readStringUntil('\n').toInt();
     int restTime = f.readStringUntil('\n').toInt();
+    Serial.println("Reading work / configuration");
+    Serial.println(workTime);
+    Serial.println(restTime);
   }
   f.close();
 }
