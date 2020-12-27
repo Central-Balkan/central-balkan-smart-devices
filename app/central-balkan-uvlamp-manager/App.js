@@ -118,7 +118,7 @@ export default class App extends React.Component {
     .then((json) => {
             this.setState({
               isOnline: true,
-              isOn: true,
+              isOn: json.isCurrentlyWorkingInt == '1',
               workTime: json.workTime,
               restTime: json.restTime,
               timeLeft: json.timeLeft,
