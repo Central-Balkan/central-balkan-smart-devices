@@ -1,4 +1,4 @@
-
+#include <ezButton.h>
 #include <TM1637.h>
 #include <Keypad.h>
 #define leftMotorDirPin 12
@@ -31,6 +31,9 @@ int digit4 = 0;
 
 boolean isLeftMotorRunning = false;
 
+ezButton limitSwitch(A0);  // create ezButton object that attach to pin A0;
+
+
 void setup() {
   pinMode(leftMotorStepPin, OUTPUT);
   pinMode(leftMotorDirPin, OUTPUT);
@@ -41,24 +44,42 @@ void setup() {
   tm.set(1);
 
   Serial.begin(9600);
+
+  limitSwitch.setDebounceTime(50); // set debounce time to 50 milliseconds
 }
 
 void moveMotorsWithOneStep() {
-    // These four lines result in 1 step:
-    digitalWrite(leftMotorStepPin, HIGH);
-    delayMicroseconds(6000);
-    digitalWrite(leftMotorStepPin, LOW);
-    delayMicroseconds(6000);
+  // These four lines result in 1 step:
+  digitalWrite(leftMotorStepPin, HIGH);
+  delayMicroseconds(6000);
+  digitalWrite(leftMotorStepPin, LOW);
+  delayMicroseconds(6000);
 }
 
 void moveMotorsForward(int steps) {
-      digitalWrite(leftMotorDirPin, LOW);
+  Serial.println("Moving forward...");
+  digitalWrite(leftMotorDirPin, LOW);
 
-      for (int i = 0; i < steps; i++) {
-        moveMotorsWithOneStep();
-      }
+  int state = limitSwitch.getState();
 
-      delay(1000);
+  for (int i = 0; i < steps; i++) {
+    moveMotorsWithOneStep();
+  }
+}
+
+void resetMotors() {
+  Serial.println("Resetting motors...");
+  digitalWrite(leftMotorDirPin, HIGH);
+
+  while (true) {
+    limitSwitch.loop(); // MUST call the loop() function first
+
+    if(limitSwitch.isPressed()) {
+      return;
+    }
+
+    moveMotorsWithOneStep();
+  }
 }
 
 void displayValue() {
@@ -94,6 +115,7 @@ void loop() {
     if (shouldRun) {
       int totalSteps = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
       
+      resetMotors();
       moveMotorsForward(totalSteps);
 
     } else if (shouldReset) {
