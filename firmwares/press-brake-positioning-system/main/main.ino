@@ -28,8 +28,7 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-
-boolean isLeftMotorRunning = false;
+int MOTORS_SPEED = 6000;
 
 ezButton limitSwitch(A0);  // create ezButton object that attach to pin A0;
 
@@ -51,9 +50,9 @@ void setup() {
 void moveMotorsWithOneStep() {
   // These four lines result in 1 step:
   digitalWrite(leftMotorStepPin, HIGH);
-  delayMicroseconds(6000);
+  delayMicroseconds(MOTORS_SPEED);
   digitalWrite(leftMotorStepPin, LOW);
-  delayMicroseconds(6000);
+  delayMicroseconds(MOTORS_SPEED);
 }
 
 void moveMotorsForward(int steps) {
@@ -103,8 +102,6 @@ void loop() {
   char key = keypad.getKey();
 
   if (key) {
-    isLeftMotorRunning = true;
-
     Serial.println(key);
 
     String keyStr = String(key);
