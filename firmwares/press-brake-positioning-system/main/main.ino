@@ -3,6 +3,8 @@
 #include <Keypad.h>
 #define leftMotorDirPin 12
 #define leftMotorStepPin 13
+#define rightMotorDirPin A4
+#define rightMotorStepPin A5
 
 const int ROW_NUM = 4; //four rows
 const int COLUMN_NUM = 4; //four columns
@@ -28,15 +30,24 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-int MOTORS_SPEED = 6000;
+int MOTORS_SPEED = 10000;
 
-ezButton limitSwitch(A0);  // create ezButton object that attach to pin A0;
+ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
+ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
+
+int LEFT_MOTOR_FORWARD = HIGH;
+int LEFT_MOTOR_BACKWARD = LOW;
+
+int RIGHT_MOTOR_FORWARD = LOW;
+int RIGHT_MOTOR_BACKWARD = HIGH;
 
 
 void setup() {
   pinMode(leftMotorStepPin, OUTPUT);
   pinMode(leftMotorDirPin, OUTPUT);
-  // put your setup code here, to run once:
+  pinMode(rightMotorStepPin, OUTPUT);
+  pinMode(rightMotorDirPin, OUTPUT);
+
   tm.init();
 
   // set brightness; 0-7
@@ -44,40 +55,73 @@ void setup() {
 
   Serial.begin(9600);
 
-  limitSwitch.setDebounceTime(50); // set debounce time to 50 milliseconds
+  leftLimitSwitch.setDebounceTime(50); // set debounce time to 50 milliseconds
+  rightLimitSwitch.setDebounceTime(50); // set debounce time to 50 milliseconds
 }
 
-void moveMotorsWithOneStep() {
+void moveMotorsWithOneStepForward() {
   // These four lines result in 1 step:
   digitalWrite(leftMotorStepPin, HIGH);
+  digitalWrite(rightMotorStepPin, HIGH);
   delayMicroseconds(MOTORS_SPEED);
+
   digitalWrite(leftMotorStepPin, LOW);
+  digitalWrite(rightMotorStepPin, LOW);
   delayMicroseconds(MOTORS_SPEED);
 }
 
 void moveMotorsForward(int steps) {
-  Serial.println("Moving forward...");
-  digitalWrite(leftMotorDirPin, LOW);
+  Serial.println("Moving both motors forward...");
 
-  int state = limitSwitch.getState();
+  digitalWrite(leftMotorDirPin, LEFT_MOTOR_FORWARD);
+  digitalWrite(rightMotorDirPin, RIGHT_MOTOR_FORWARD);
 
   for (int i = 0; i < steps; i++) {
-    moveMotorsWithOneStep();
+    moveMotorsWithOneStepForward();
   }
 }
 
 void resetMotors() {
   Serial.println("Resetting motors...");
-  digitalWrite(leftMotorDirPin, HIGH);
+
+  digitalWrite(leftMotorDirPin, LEFT_MOTOR_BACKWARD);
+  digitalWrite(rightMotorDirPin, RIGHT_MOTOR_BACKWARD);
+
+  boolean leftMotorAtZero = false;
+  boolean rightMotorAtZero = false;
 
   while (true) {
-    limitSwitch.loop(); // MUST call the loop() function first
+    leftLimitSwitch.loop(); // MUST call the loop() function first
+    rightLimitSwitch.loop(); // MUST call the loop() function first
 
-    if(limitSwitch.isPressed()) {
+    if (leftMotorAtZero && rightMotorAtZero) {
+      // Both motors are at zero point.
+      Serial.println("Both motors at zero point");
       return;
     }
 
-    moveMotorsWithOneStep();
+    boolean shouldMoveLeftMotor = !leftLimitSwitch.isPressed();
+    boolean shouldMoveRightMotor = !rightLimitSwitch.isPressed();
+
+    if(shouldMoveLeftMotor && !leftMotorAtZero) {
+      digitalWrite(leftMotorStepPin, HIGH);
+    } else {
+      Serial.println("Left motor at zero point");
+      leftMotorAtZero = true;
+    }
+
+
+    if(shouldMoveRightMotor && !rightMotorAtZero) {
+      digitalWrite(rightMotorStepPin, HIGH);
+    } else {
+      Serial.println("Right motor at zero point");
+      rightMotorAtZero = true;
+    }
+
+    delayMicroseconds(MOTORS_SPEED);
+
+    digitalWrite(leftMotorStepPin, LOW);
+    digitalWrite(rightMotorStepPin, LOW);
   }
 }
 
@@ -99,6 +143,9 @@ void setDigits(int newDigit1, int newDigit2, int newDigit3, int newDigit4) {
 }
 
 void loop() {
+  leftLimitSwitch.loop(); // MUST call the loop() function first
+  rightLimitSwitch.loop(); // MUST call the loop() function first
+
   char key = keypad.getKey();
 
   if (key) {
@@ -112,7 +159,7 @@ void loop() {
     if (shouldRun) {
       int totalSteps = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
       
-      resetMotors();
+      /* resetMotors(); */
       moveMotorsForward(totalSteps);
 
     } else if (shouldReset) {
