@@ -30,7 +30,7 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-int MOTORS_SPEED = 10000;
+int MOTORS_SPEED = 5000;
 
 ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
 ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
@@ -122,6 +122,7 @@ void resetMotors() {
 
     digitalWrite(leftMotorStepPin, LOW);
     digitalWrite(rightMotorStepPin, LOW);
+    delayMicroseconds(MOTORS_SPEED);
   }
 }
 
@@ -159,7 +160,7 @@ void loop() {
     if (shouldRun) {
       int totalSteps = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
       
-      /* resetMotors(); */
+      resetMotors();
       moveMotorsForward(totalSteps);
 
     } else if (shouldReset) {
