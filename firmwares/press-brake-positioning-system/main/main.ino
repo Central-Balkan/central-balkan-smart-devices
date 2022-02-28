@@ -9,20 +9,20 @@
 const int ROW_NUM = 4; //four rows
 const int COLUMN_NUM = 4; //four columns
 
-char keys[ROW_NUM][COLUMN_NUM] = {
+const char keys[ROW_NUM][COLUMN_NUM] = {
   {'1', '2', '3', 'A'},
   {'4', '5', '6', 'B'},
   {'7', '8', '9', 'C'},
   {'*', '0', '#', 'D'}
 };
 
-byte pin_rows[ROW_NUM] = {11, 10, 9, 8}; //connect to the row pinouts of the keypad
-byte pin_column[COLUMN_NUM] = {7, 6, 5, 4}; //connect to the column pinouts of the keypad
+const byte pin_rows[ROW_NUM] = {11, 10, 9, 8}; //connect to the row pinouts of the keypad
+const byte pin_column[COLUMN_NUM] = {7, 6, 5, 4}; //connect to the column pinouts of the keypad
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
 
-int CLK = 2;
-int DIO = 3;
+const int CLK = 2;
+const int DIO = 3;
 
 TM1637 tm(CLK, DIO);
 
@@ -30,17 +30,17 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-int MOTORS_SPEED = 5000;
+int MOTORS_SPEED = 10000;
+boolean SHOULD_STOP = false;
 
-ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
-ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
+const ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
+const ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
 
-int LEFT_MOTOR_FORWARD = HIGH;
-int LEFT_MOTOR_BACKWARD = LOW;
+const int LEFT_MOTOR_FORWARD = LOW;
+const int LEFT_MOTOR_BACKWARD = HIGH;
 
-int RIGHT_MOTOR_FORWARD = LOW;
-int RIGHT_MOTOR_BACKWARD = HIGH;
-
+const int RIGHT_MOTOR_FORWARD = HIGH;
+const int RIGHT_MOTOR_BACKWARD = LOW;
 
 void setup() {
   pinMode(leftMotorStepPin, OUTPUT);
@@ -77,6 +77,12 @@ void moveMotorsForward(int steps) {
   digitalWrite(rightMotorDirPin, RIGHT_MOTOR_FORWARD);
 
   for (int i = 0; i < steps; i++) {
+    if (keypad.getKey()) {
+      SHOULD_STOP = true;
+    }
+    if (SHOULD_STOP) {
+      return;
+    }
     moveMotorsWithOneStepForward();
   }
 }
@@ -91,6 +97,13 @@ void resetMotors() {
   boolean rightMotorAtZero = false;
 
   while (true) {
+    if (keypad.getKey()) {
+      SHOULD_STOP = true;
+    }
+    if (SHOULD_STOP) {
+      return;
+    }
+
     leftLimitSwitch.loop(); // MUST call the loop() function first
     rightLimitSwitch.loop(); // MUST call the loop() function first
 
@@ -144,6 +157,8 @@ void setDigits(int newDigit1, int newDigit2, int newDigit3, int newDigit4) {
 }
 
 void loop() {
+  SHOULD_STOP = false;
+
   leftLimitSwitch.loop(); // MUST call the loop() function first
   rightLimitSwitch.loop(); // MUST call the loop() function first
 
