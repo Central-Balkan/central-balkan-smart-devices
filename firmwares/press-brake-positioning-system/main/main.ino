@@ -107,8 +107,8 @@ void resetMotors() {
   digitalWrite(leftMotorDirPin, LEFT_MOTOR_BACKWARD);
   digitalWrite(rightMotorDirPin, RIGHT_MOTOR_BACKWARD);
 
-  boolean leftMotorAtZero = false;
-  boolean rightMotorAtZero = false;
+  boolean leftMotorAtZero = leftLimitSwitch.getState() == LOW;
+  boolean rightMotorAtZero = rightLimitSwitch.getState() == LOW;
 
   while (true) {
     if (keypad.getKey()) {
