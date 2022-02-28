@@ -36,6 +36,8 @@ boolean SHOULD_STOP = false;
 const ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
 const ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
 
+const float DISTANCE_PER_STEP = 0.39269908169872414;
+
 const int LEFT_MOTOR_FORWARD = LOW;
 const int LEFT_MOTOR_BACKWARD = HIGH;
 
@@ -85,6 +87,18 @@ void moveMotorsForward(int steps) {
     }
     moveMotorsWithOneStepForward();
   }
+}
+
+float calcDistance(int steps) {
+  return steps * DISTANCE_PER_STEP;
+}
+
+int calculateSteps(int milimeters) {
+  int steps =  round(milimeters / DISTANCE_PER_STEP);
+
+  Serial.println("Moving " + (String)steps + " steps for " + (String)calcDistance(steps) + " mm");
+
+  return steps;
 }
 
 void resetMotors() {
@@ -173,7 +187,8 @@ void loop() {
     boolean shouldReset = (key == '*');
 
     if (shouldRun) {
-      int totalSteps = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
+      int totalMilimeters = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
+      int totalSteps = calculateSteps(totalMilimeters);
       
       resetMotors();
       moveMotorsForward(totalSteps);
