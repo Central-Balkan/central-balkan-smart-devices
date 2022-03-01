@@ -30,7 +30,7 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-int MOTORS_SPEED = 10000;
+int MOTORS_SPEED = 4000;
 boolean SHOULD_STOP = false;
 
 const ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
