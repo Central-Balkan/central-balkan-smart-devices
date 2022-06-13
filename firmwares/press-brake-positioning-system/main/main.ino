@@ -30,19 +30,19 @@ int digit1 = 0;
 int digit2 = 0;
 int digit3 = 0;
 int digit4 = 0;
-int MOTORS_SPEED = 4000;
+int MOTORS_SPEED = 1000;
 boolean SHOULD_STOP = false;
 
 const ezButton leftLimitSwitch(A0);  // create ezButton object for left motor that's attached to pin A0;
 const ezButton rightLimitSwitch(A1);  // create ezButton object for right motor that's attached to pin A1;
 
-const float DISTANCE_PER_STEP = 0.39269908169872414;
+const float DISTANCE_PER_STEP = 0.04488888888888889;
 
-const int LEFT_MOTOR_FORWARD = LOW;
-const int LEFT_MOTOR_BACKWARD = HIGH;
+const int LEFT_MOTOR_FORWARD = HIGH;
+const int LEFT_MOTOR_BACKWARD = LOW;
 
-const int RIGHT_MOTOR_FORWARD = HIGH;
-const int RIGHT_MOTOR_BACKWARD = LOW;
+const int RIGHT_MOTOR_FORWARD = LOW;
+const int RIGHT_MOTOR_BACKWARD = HIGH;
 
 void setup() {
   pinMode(leftMotorStepPin, OUTPUT);
@@ -121,7 +121,8 @@ void resetMotors() {
     leftLimitSwitch.loop(); // MUST call the loop() function first
     rightLimitSwitch.loop(); // MUST call the loop() function first
 
-    if (leftMotorAtZero && rightMotorAtZero) {
+    /* if (leftMotorAtZero && rightMotorAtZero) { */
+    if (leftMotorAtZero) {
       // Both motors are at zero point.
       Serial.println("Both motors at zero point");
       return;
@@ -188,7 +189,9 @@ void loop() {
 
     if (shouldRun) {
       int totalMilimeters = digit1 * 1000 + digit2 * 100 + digit3 * 10 + digit4;
-      int totalSteps = calculateSteps(totalMilimeters);
+      int totalSteps = calculateSteps(
+          totalMilimeters - 31
+      );
       
       resetMotors();
       moveMotorsForward(totalSteps);
